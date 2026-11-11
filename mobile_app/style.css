@@ -1,0 +1,194 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #07111f;
+    color: #eafaff;
+    min-height: 100vh;
+}
+
+header {
+    text-align: center;
+    padding: 35px 15px;
+    background: linear-gradient(135deg, #071b35, #063b52);
+    border-bottom: 2px solid #00d9ff;
+}
+
+header h1 {
+    font-size: 32px;
+    letter-spacing: 5px;
+    color: #00e5ff;
+    text-shadow: 0 0 15px #00bfff;
+}
+
+header p {
+    margin-top: 10px;
+    letter-spacing: 3px;
+    color: #a6ddeb;
+}
+
+#connection {
+    display: inline-block;
+    margin-top: 18px;
+    color: #36ff9b;
+    font-size: 13px;
+}
+
+main {
+    width: 90%;
+    max-width: 850px;
+    margin: 25px auto;
+}
+
+.welcome {
+    margin-bottom: 25px;
+}
+
+.welcome h2 {
+    color: #00e5ff;
+    margin-bottom: 8px;
+}
+
+.panel {
+    background: #101f31;
+    border: 1px solid #14516b;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 22px;
+    box-shadow: 0 0 15px #001c30;
+}
+
+.panel h2 {
+    color: #00d9ff;
+    margin-bottom: 18px;
+    font-size: 18px;
+    letter-spacing: 2px;
+}
+
+#chat {
+    background: #071522;
+    border: 1px solid #17617b;
+    padding: 15px;
+    border-radius: 8px;
+    min-height: 90px;
+    max-height: 360px;
+    overflow-y: auto;
+    margin-bottom: 15px;
+    line-height: 1.6;
+}
+
+.controls {
+    display: flex;
+    gap: 8px;
+}
+
+input, select {
+    flex: 1;
+    min-width: 0;
+    padding: 13px;
+    border-radius: 7px;
+    border: 1px solid #00bddd;
+    background: #071522;
+    color: white;
+    outline: none;
+}
+
+button {
+    padding: 12px 18px;
+    border: none;
+    border-radius: 7px;
+    background: #00c9e8;
+    color: #04121d;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #65edff;
+}
+
+.voice {
+    width: 100%;
+    margin-top: 12px;
+    background: #123e59;
+    color: #72eaff;
+    border: 1px solid #00bddd;
+}
+
+.voice-settings {
+    display: grid;
+    gap: 10px;
+    margin-top: 18px;
+    padding: 15px;
+    border: 1px solid #214d65;
+    border-radius: 9px;
+    background: #0b1929;
+}
+
+.voice-settings label {
+    color: #a6ddeb;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.voice-settings input[type="range"] {
+    width: 100%;
+    padding: 0;
+    accent-color: #00c9e8;
+}
+
+.voice-settings .secondary {
+    background: #123e59;
+    color: #72eaff;
+    border: 1px solid #17617b;
+}
+
+.hint {
+    color: #91aebe;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.system {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 14px 0;
+    border-bottom: 1px solid #214057;
+}
+
+.system span {
+    color: #36ff9b;
+    font-size: 12px;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    color: #668b9f;
+    font-size: 12px;
+}
+
+@media (max-width: 480px) {
+    header h1 {
+        font-size: 25px;
+        letter-spacing: 3px;
+    }
+
+    .panel {
+        padding: 17px;
+    }
+
+    button {
+        padding: 12px;
+    }
+
+    .controls {
+        gap: 6px;
+    }
+}
