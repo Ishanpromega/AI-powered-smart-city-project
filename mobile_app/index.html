@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PROJECT AETHER</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        #locationResults { display: grid; gap: 8px; margin-top: 10px; }
+        .location-result { width: 100%; text-align: left; padding: 10px; border: 1px solid #8886; border-radius: 8px; background: transparent; }
+        .location-result[aria-pressed="true"] { outline: 2px solid #4b9; }
+        #locationStatus { overflow-wrap: anywhere; }
+        .hint { opacity: .75; font-size: .9em; }
+    </style>
 </head>
 <body>
     <header>
