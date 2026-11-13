@@ -1,0 +1,280 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+
+    <title>AETHER | Admin Console</title>
+
+    <link rel="stylesheet" href="/admin.css">
+</head>
+
+<body>
+
+    <div class="background-glow"></div>
+
+    <main class="container">
+
+        <header class="topbar">
+
+            <a class="brand" href="/">
+                <span class="brand-icon">A</span>
+
+                <span>
+                    AETHER
+                    <small>ADMIN CONSOLE</small>
+                </span>
+            </a>
+
+            <span class="system-label">
+                <span class="status-dot"></span>
+                LOCAL SYSTEM
+            </span>
+
+        </header>
+
+
+        <!-- ADMIN LOGIN -->
+
+        <section id="loginSection" class="login-card">
+
+            <div class="eyebrow">RESTRICTED ACCESS</div>
+
+            <h1>Administrator Login</h1>
+
+            <p class="muted">
+                Authenticate to access AETHER system analytics.
+            </p>
+
+            <form id="loginForm">
+
+                <label for="adminPassword">
+                    ADMIN PASSWORD
+                </label>
+
+                <input
+                    id="adminPassword"
+                    type="password"
+                    placeholder="Enter administrator password"
+                    autocomplete="current-password"
+                    required
+                >
+
+                <button type="submit" id="loginButton">
+                    AUTHENTICATE
+                </button>
+
+            </form>
+
+            <p id="loginError" class="error-message"></p>
+
+            <p class="security-note">
+                Protected administrator session
+            </p>
+
+        </section>
+
+
+        <!-- ADMIN DASHBOARD -->
+
+        <section id="dashboardSection" hidden>
+
+            <div class="welcome-row">
+
+                <div>
+                    <div class="eyebrow">
+                        ADMINISTRATION / ANALYTICS
+                    </div>
+
+                    <h1>System Overview</h1>
+
+                    <p class="muted">
+                        Monitor AETHER visitor activity and topics.
+                    </p>
+                </div>
+
+                <div class="header-actions">
+
+                    <button
+                        id="refreshButton"
+                        class="secondary-button"
+                    >
+                        ↻ REFRESH
+                    </button>
+
+                    <button
+                        id="clearAnalyticsButton"
+                        class="clear-button"
+                    >
+                        CLEAR ANALYTICS
+                    </button>
+
+                    <button
+                        id="logoutButton"
+                        class="logout-button"
+                    >
+                        LOG OUT
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- ERROR MESSAGE -->
+
+            <div
+                id="dashboardError"
+                class="error-banner"
+                hidden
+            ></div>
+
+
+            <!-- ANALYTICS CARDS -->
+
+            <div class="stats-grid">
+
+                <article class="stat-card">
+
+                    <div class="stat-heading">
+                        <span>TOTAL QUESTIONS</span>
+                        <span>◉</span>
+                    </div>
+
+                    <div
+                        id="totalQuestions"
+                        class="stat-value"
+                    >
+                        —
+                    </div>
+
+                    <div class="stat-description">
+                        Recorded visitor questions
+                    </div>
+
+                </article>
+
+
+                <article class="stat-card">
+
+                    <div class="stat-heading">
+                        <span>TOTAL VISITORS</span>
+                        <span>◎</span>
+                    </div>
+
+                    <div
+                        id="totalVisitors"
+                        class="stat-value"
+                    >
+                        —
+                    </div>
+
+                    <div class="stat-description">
+                        Visitor sessions recorded
+                    </div>
+
+                </article>
+
+
+                <article class="stat-card">
+
+                    <div class="stat-heading">
+                        <span>TOPICS DETECTED</span>
+                        <span>▤</span>
+                    </div>
+
+                    <div
+                        id="totalTopics"
+                        class="stat-value"
+                    >
+                        —
+                    </div>
+
+                    <div class="stat-description">
+                        Different question categories
+                    </div>
+
+                </article>
+
+
+                <article class="stat-card highlight-card">
+
+                    <div class="stat-heading">
+                        <span>MOST POPULAR TOPIC</span>
+                        <span>↗</span>
+                    </div>
+
+                    <div
+                        id="popularTopic"
+                        class="stat-value popular-value"
+                    >
+                        —
+                    </div>
+
+                    <div
+                        id="popularCount"
+                        class="stat-description"
+                    >
+                        No data yet
+                    </div>
+
+                </article>
+
+            </div>
+
+
+            <!-- TOPIC ANALYTICS -->
+
+            <section class="panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <div class="eyebrow">
+                            VISITOR INTEREST
+                        </div>
+
+                        <h2>Topic Analytics</h2>
+                    </div>
+
+                    <span class="panel-tag">
+                        QUESTION DISTRIBUTION
+                    </span>
+
+                </div>
+
+                <div id="topicsList" class="topics-list">
+
+                    <p class="muted">
+                        Waiting for analytics...
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- FOOTER -->
+
+            <footer class="dashboard-footer">
+
+                <span>
+                    AETHER ADMINISTRATION SYSTEM
+                </span>
+
+                <span id="lastUpdated">
+                    Not updated yet
+                </span>
+
+            </footer>
+
+        </section>
+
+    </main>
+
+    <script src="/admin.js"></script>
+
+</body>
+</html>

@@ -10,6 +10,107 @@ let recognition = null;
 let isListening = false;
 
 // ==========================================
+// AETHER VISITOR SESSION
+// ==========================================
+
+const SESSION_KEY = "aether_session_id";
+
+let aetherSessionId = null;
+
+async function initializeSession() {
+
+    let savedSessionId = null;
+
+    try {
+        savedSessionId = localStorage.getItem(SESSION_KEY);
+    } catch (error) {
+        console.warn("AETHER: Browser storage unavailable.");
+    }
+
+    async function createOrRestoreSession(sessionId) {
+
+        const response = await fetch("/api/session/start", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(
+                sessionId ? { session_id: sessionId } : {}
+            )
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                data.error || "Session initialization failed."
+            );
+        }
+
+        if (!data.session_id) {
+            throw new Error("Server did not return a session ID.");
+        }
+
+        return data.session_id;
+    }
+
+    try {
+
+        // Try restoring the previous visitor session.
+        try {
+
+            aetherSessionId = await createOrRestoreSession(
+                savedSessionId
+            );
+
+        } catch (error) {
+
+            // If the saved ID is invalid, request a fresh session.
+            if (!savedSessionId) {
+                throw error;
+            }
+
+            console.warn(
+                "AETHER: Previous session could not be restored. Creating a new one."
+            );
+
+            aetherSessionId = await createOrRestoreSession(null);
+        }
+
+        try {
+            localStorage.setItem(
+                SESSION_KEY,
+                aetherSessionId
+            );
+        } catch (error) {
+            console.warn("AETHER: Could not save session locally.");
+        }
+
+        console.log(
+            "AETHER visitor session ready:",
+            aetherSessionId
+        );
+
+        return true;
+
+    } catch (error) {
+
+        aetherSessionId = null;
+
+        console.error(
+            "AETHER session error:",
+            error
+        );
+
+        return false;
+    }
+}
+
+// Start session as soon as the dashboard loads.
+const sessionReady = initializeSession();
+
+
+// ==========================================
 // AI CHAT
 // ==========================================
 
@@ -33,11 +134,13 @@ function cleanForSpeech(message) {
         .trim();
 }
 
+
 // ==========================================
 // VOICE OUTPUT
 // ==========================================
 
 function loadVoices() {
+
     if (!("speechSynthesis" in window)) {
         voiceSelect.innerHTML =
             '<option value="">Speech is not supported</option>';
@@ -61,6 +164,7 @@ function loadVoices() {
     voiceSelect.appendChild(defaultOption);
 
     availableVoices.forEach(voice => {
+
         const option = document.createElement("option");
 
         option.value = voice.voiceURI;
@@ -77,6 +181,7 @@ function loadVoices() {
 }
 
 if ("speechSynthesis" in window) {
+
     loadVoices();
 
     speechSynthesis.addEventListener?.(
@@ -88,11 +193,13 @@ if ("speechSynthesis" in window) {
 }
 
 function speakMessage(message) {
+
     if (!("speechSynthesis" in window)) return;
 
     speechSynthesis.cancel();
 
     const text = cleanForSpeech(message);
+
     if (!text) return;
 
     const speech = new SpeechSynthesisUtterance(text);
@@ -117,11 +224,13 @@ function reply(message) {
     speakMessage(message);
 }
 
+
 // ==========================================
 // AI COMMUNICATION
 // ==========================================
 
 async function sendCommand() {
+
     const message = commandInput.value.trim();
 
     if (!message) return;
@@ -130,6 +239,7 @@ async function sendCommand() {
     commandInput.value = "";
 
     const thinking = document.createElement("div");
+
     thinking.textContent = "AETHER: Thinking...";
     thinking.style.marginBottom = "18px";
 
@@ -137,12 +247,22 @@ async function sendCommand() {
     chat.scrollTop = chat.scrollHeight;
 
     try {
+
+        // Wait for the visitor session initialization.
+        await sessionReady;
+
         const response = await fetch("/api/chat", {
+
             method: "POST",
+
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ message })
+
+            body: JSON.stringify({
+                message: message,
+                session_id: aetherSessionId
+            })
         });
 
         const data = await response.json();
@@ -151,13 +271,16 @@ async function sendCommand() {
 
         if (!response.ok) {
             throw new Error(
-                data.error || "AI connection failed."
+                data.error || data.reply || "AI connection failed."
             );
         }
 
-        reply(data.reply || "I couldn't generate a reply.");
+        reply(
+            data.reply || "I couldn't generate a reply."
+        );
 
     } catch (error) {
+
         thinking.remove();
 
         addMessage(
@@ -169,20 +292,24 @@ async function sendCommand() {
     }
 }
 
+
 // ==========================================
 // VOICE INPUT
 // ==========================================
 
 function startVoice() {
+
     const SpeechRecognition =
         window.SpeechRecognition ||
         window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
+
         addMessage(
             "AETHER: ",
             "Voice input is not supported by this browser. Try Chrome."
         );
+
         return;
     }
 
@@ -203,15 +330,20 @@ function startVoice() {
     recognition.maxAlternatives = 1;
 
     recognition.onstart = function() {
+
         isListening = true;
 
         document.getElementById("voiceButton").textContent =
             "🎙️ LISTENING... TAP TO STOP";
 
-        addMessage("AETHER: ", "I'm listening. Speak now.");
+        addMessage(
+            "AETHER: ",
+            "I'm listening. Speak now."
+        );
     };
 
     recognition.onresult = function(event) {
+
         const transcript =
             event.results[0][0].transcript;
 
@@ -220,6 +352,7 @@ function startVoice() {
     };
 
     recognition.onerror = function(event) {
+
         console.warn(
             "Speech recognition error:",
             event.error
@@ -229,6 +362,7 @@ function startVoice() {
             event.error !== "no-speech" &&
             event.error !== "aborted"
         ) {
+
             addMessage(
                 "AETHER: ",
                 "I couldn't hear that clearly. Please try again."
@@ -237,6 +371,7 @@ function startVoice() {
     };
 
     recognition.onend = function() {
+
         isListening = false;
 
         document.getElementById("voiceButton").textContent =
@@ -244,9 +379,11 @@ function startVoice() {
     };
 
     try {
+
         recognition.start();
 
     } catch (error) {
+
         isListening = false;
 
         document.getElementById("voiceButton").textContent =
@@ -256,18 +393,22 @@ function startVoice() {
     }
 }
 
+
 // ==========================================
 // WEB SEARCH
 // ==========================================
 
 function webSearch() {
+
     const searchInput =
         document.getElementById("searchQuery");
 
     const query = searchInput.value.trim();
 
     if (!query) {
+
         reply("Please enter something to search for.");
+
         return;
     }
 
@@ -278,6 +419,7 @@ function webSearch() {
 
     sendCommand();
 }
+
 
 // ==========================================
 // EXISTING UI EVENTS
@@ -293,21 +435,29 @@ document.getElementById("searchButton")
     .addEventListener("click", webSearch);
 
 commandInput.addEventListener("keydown", event => {
-    if (event.key === "Enter") sendCommand();
+
+    if (event.key === "Enter") {
+        sendCommand();
+    }
 });
 
 document.getElementById("searchQuery")
     .addEventListener("keydown", event => {
-        if (event.key === "Enter") webSearch();
+
+        if (event.key === "Enter") {
+            webSearch();
+        }
     });
 
 speechRate.addEventListener("input", () => {
+
     rateValue.textContent =
         Number(speechRate.value).toFixed(1) + "x";
 });
 
 document.getElementById("testVoiceButton")
     .addEventListener("click", () => {
+
         speakMessage(
             "Hello! I am AETHER. How can I help you today?"
         );
@@ -315,10 +465,12 @@ document.getElementById("testVoiceButton")
 
 document.getElementById("stopSpeechButton")
     .addEventListener("click", () => {
+
         if ("speechSynthesis" in window) {
             speechSynthesis.cancel();
         }
     });
+
 
 // ==========================================
 // AETHER SETUP MODE + LOCATION
@@ -333,9 +485,11 @@ document.getElementById("stopSpeechButton")
         weatherElement?.closest(".panel");
 
     if (!weatherElement || !weatherPanel) {
+
         console.error(
             "AETHER: Weather panel not found."
         );
+
         return;
     }
 
@@ -416,11 +570,13 @@ document.getElementById("stopSpeechButton")
     let savedLocation = null;
 
     try {
+
         savedLocation = JSON.parse(
             localStorage.getItem(LOCATION_KEY)
         );
 
     } catch (error) {
+
         localStorage.removeItem(LOCATION_KEY);
     }
 
@@ -431,8 +587,8 @@ document.getElementById("stopSpeechButton")
         toggle.textContent = content.hidden
             ? "OPEN SETUP MODE"
             : "CLOSE SETUP MODE";
-
     });
+
 
     // Save selected location.
     function saveLocation(name, latitude, longitude) {
@@ -458,14 +614,17 @@ document.getElementById("stopSpeechButton")
         loadWeather(location);
     }
 
+
     // Search for a city.
     async function searchCity() {
 
         const city = searchInput.value.trim();
 
         if (!city) {
+
             status.textContent =
                 "Please enter a city name.";
+
             return;
         }
 
@@ -489,8 +648,10 @@ document.getElementById("stopSpeechButton")
             const data = await response.json();
 
             if (!data.results?.length) {
+
                 status.textContent =
                     "No matching city found.";
+
                 return;
             }
 
@@ -519,11 +680,9 @@ document.getElementById("stopSpeechButton")
                         place.latitude,
                         place.longitude
                     );
-
                 });
 
                 results.appendChild(button);
-
             });
 
         } catch (error) {
@@ -544,8 +703,12 @@ document.getElementById("stopSpeechButton")
     );
 
     searchInput.addEventListener("keydown", event => {
-        if (event.key === "Enter") searchCity();
+
+        if (event.key === "Enter") {
+            searchCity();
+        }
     });
+
 
     // Detect current location.
     currentButton.addEventListener("click", () => {
@@ -570,7 +733,6 @@ document.getElementById("stopSpeechButton")
                     position.coords.latitude,
                     position.coords.longitude
                 );
-
             },
 
             error => {
@@ -579,7 +741,6 @@ document.getElementById("stopSpeechButton")
                     error.code === 1
                         ? "Location permission denied. Search for your city instead."
                         : "Unable to get location. Please try city search.";
-
             },
 
             {
@@ -587,9 +748,9 @@ document.getElementById("stopSpeechButton")
                 timeout: 15000,
                 maximumAge: 300000
             }
-
         );
     });
+
 
     // Weather descriptions.
     function weatherDescription(code) {
@@ -620,10 +781,12 @@ document.getElementById("stopSpeechButton")
             "Weather conditions unavailable";
     }
 
+
     // Fetch current weather from Open-Meteo.
     async function loadWeather(location) {
 
         weatherElement.style.whiteSpace = "pre-line";
+
         weatherElement.textContent =
             "Loading weather...";
 
@@ -639,6 +802,7 @@ document.getElementById("stopSpeechButton")
             const response = await fetch(url);
 
             if (!response.ok) {
+
                 throw new Error(
                     "Weather service unavailable."
                 );
@@ -649,6 +813,7 @@ document.getElementById("stopSpeechButton")
             const current = data.current;
 
             if (!current) {
+
                 throw new Error(
                     "Weather data unavailable."
                 );
@@ -686,6 +851,7 @@ document.getElementById("stopSpeechButton")
         }
     }
 
+
     // Restore previously saved location.
     if (
         savedLocation &&
@@ -699,7 +865,6 @@ document.getElementById("stopSpeechButton")
 
         weatherElement.textContent =
             "Please select your location in Setup Mode.";
-
     }
 
     console.log(
